@@ -1,0 +1,509 @@
+definitions:
+  models.CUTTING_INFO:
+    properties:
+      avecuttingspeed:
+        type: number
+      data_updated:
+        type: boolean
+      insertiontime:
+        type: number
+      maxcuttingspeed:
+        type: number
+      mincuttingspeed:
+        type: number
+      record_id:
+        type: integer
+    type: object
+  models.CrossSecArea:
+    properties:
+      area_value:
+        type: number
+    type: object
+  models.Gases:
+    properties:
+      gas_id:
+        type: integer
+      gas_name:
+        type: string
+    type: object
+  models.Katets:
+    properties:
+      katet_value:
+        type: string
+    type: object
+  models.Machine:
+    properties:
+      machine_id:
+        type: integer
+      machine_name:
+        type: string
+    type: object
+  models.Materials:
+    properties:
+      material_name:
+        type: string
+    type: object
+  models.SeamTypes:
+    properties:
+      seam_type_name:
+        type: string
+    type: object
+  models.Tnsh:
+    properties:
+      tnsh_value:
+        type: number
+    type: object
+  models.WeldingMaterials:
+    properties:
+      material_name:
+        type: string
+    type: object
+  models.WeldingTypes:
+    properties:
+      welding_type_name:
+        type: string
+    type: object
+  models.WireDiameterValues:
+    properties:
+      diameter_value:
+        type: number
+    type: object
+info:
+  contact: {}
+paths:
+  /cross_sec_area:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о площади сечения шва на основе материала,
+        типа сварки, катета(толщины), типа шва
+      parameters:
+      - description: Название материала
+        in: query
+        name: material_name
+        required: true
+        type: string
+      - description: Название типа сварки
+        in: query
+        name: welding_type_name
+        required: true
+        type: string
+      - description: Значение катета(толщины)
+        in: query
+        name: katet_value
+        required: true
+        type: number
+      - description: Название типа шва
+        in: query
+        name: seam_type_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CrossSecArea'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получение информации о площади сечения шва
+      tags:
+      - welding_info
+  /cutting_calculate:
+    get:
+      consumes:
+      - application/json
+      description: Рассчитывает время, необходимое для резки металла по заданному
+        периметру. Может работать в HTTP и Websocket режимах
+      parameters:
+      - description: Периметр, мм.
+        in: query
+        name: perimeter
+        required: true
+        type: integer
+      - description: Количество врезок, шт.
+        in: query
+        name: insertion_count
+        required: true
+        type: integer
+      - description: Скорость резки, мм/с.
+        in: query
+        name: cutting_speed
+        required: true
+        type: number
+      - description: Время врезки, сек.
+        in: query
+        name: insertion_time
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"result": "calculated time"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Неверно указаны параметры
+          schema:
+            type: string
+      summary: Рассчитать время резки
+      tags:
+      - calculations
+  /cutting_info:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о резке для заданной машины, материала, толщины
+        и газа.
+      parameters:
+      - description: Название машины
+        in: query
+        name: machine_name
+        required: true
+        type: string
+      - description: Название материала
+        in: query
+        name: material_name
+        required: true
+        type: string
+      - description: Толщина материала
+        in: query
+        name: tickness
+        required: true
+        type: string
+      - description: Название газа
+        in: query
+        name: gas
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CUTTING_INFO'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получение информации о резке
+      tags:
+      - cutting_info
+  /gases:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о режущем газе для заданной машины, материала
+      parameters:
+      - description: Название машины
+        in: query
+        name: machine_name
+        required: true
+        type: string
+      - description: Название материала
+        in: query
+        name: material_name
+        required: true
+        type: string
+      - description: Толщина
+        in: query
+        name: tickness
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Gases'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получение информации о режущем газе
+      tags:
+      - cutting_info
+  /katets:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о типах сварки для заданного материала и
+        типа сварки
+      parameters:
+      - description: Название материала
+        in: query
+        name: material_name
+        required: true
+        type: string
+      - description: Название типа сварки
+        in: query
+        name: welding_type_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Katets'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получение информации о катетах(толщине) металла
+      tags:
+      - welding_info
+  /machines:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о станках предприятия
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Machine'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получение информации о станках
+      tags:
+      - cutting_info
+  /materials:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о материале по заданному станку
+      parameters:
+      - description: Название станка
+        in: query
+        name: machine_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Materials'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получение информации о материале
+      tags:
+      - cutting_info
+  /seam_type:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о типе шва по заданным материалу, типу сварки
+        и катету(толщине)
+      parameters:
+      - description: Название материала
+        in: query
+        name: material_name
+        required: true
+        type: string
+      - description: Название типа сварки
+        in: query
+        name: welding_type_name
+        required: true
+        type: string
+      - description: Катет(толщина) материала
+        in: query
+        name: katet_value
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.SeamTypes'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получение информации о типе шва
+      tags:
+      - welding_info
+  /tnsh:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о времени затрачиваемом на обработку одной
+        единицы изделия на основании материала, типа сварки, катета(толщины), типа
+        шва, площади сечения и диаметра проволоки
+      parameters:
+      - description: Название материала
+        in: query
+        name: material_name
+        required: true
+        type: string
+      - description: Название типа сварки
+        in: query
+        name: welding_type_name
+        required: true
+        type: string
+      - description: Значение катета(толщины)
+        in: query
+        name: katet_value
+        required: true
+        type: number
+      - description: Название типа шва
+        in: query
+        name: seam_type_name
+        required: true
+        type: string
+      - description: Площадь сечения
+        in: query
+        name: area_value
+        required: true
+        type: number
+      - description: Диаметер проволоки
+        in: query
+        name: diameter_value
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Tnsh'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получение времени затрачиваемого на одну штуку
+      tags:
+      - welding_info
+  /welding_materials:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о материале
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.WeldingMaterials'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получение информации о материале используемом для сварочных работ
+      tags:
+      - welding_info
+  /welding_types:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о типах сварки для заданного материала
+      parameters:
+      - description: Название материала
+        in: query
+        name: material_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.WeldingTypes'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получение информации о типе сварки
+      tags:
+      - welding_info
+  /wire_diameter:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о диаметре проволоки на основании материала,
+        типа сварки, катета(толщины), типа шва, площади сечения
+      parameters:
+      - description: Название материала
+        in: query
+        name: material_name
+        required: true
+        type: string
+      - description: Название типа сварки
+        in: query
+        name: welding_type_name
+        required: true
+        type: string
+      - description: Значение катета(толщины)
+        in: query
+        name: katet_value
+        required: true
+        type: number
+      - description: Название типа шва
+        in: query
+        name: seam_type_name
+        required: true
+        type: string
+      - description: Площадь сечения
+        in: query
+        name: area_value
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.WireDiameterValues'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получение информации о диаметре проволоки
+      tags:
+      - welding_info
+swagger: "2.0"
