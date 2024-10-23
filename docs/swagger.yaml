@@ -1,4 +1,38 @@
 definitions:
+  handlers.CrossSecAreaResponse:
+    properties:
+      area_value:
+        type: string
+    type: object
+  handlers.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  handlers.InsertCrossSecAreaRequest:
+    properties:
+      area_value:
+        type: number
+    type: object
+  handlers.InsertKatetRequest:
+    properties:
+      katet_value:
+        type: string
+    required:
+    - katet_value
+    type: object
+  handlers.InsertSeamTypeRequest:
+    properties:
+      seam_type_name:
+        type: string
+    required:
+    - seam_type_name
+    type: object
+  handlers.SeamTypeResponse:
+    properties:
+      seam_type_name:
+        type: string
+    type: object
   models.CUTTING_INFO:
     properties:
       avecuttingspeed:
@@ -71,6 +105,96 @@ definitions:
 info:
   contact: {}
 paths:
+  /create_cross_sec_area:
+    post:
+      consumes:
+      - application/json
+      description: Создает новую площадь сечения
+      parameters:
+      - description: Значение площади сечения
+        in: body
+        name: area_value
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.InsertCrossSecAreaRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Площадь сечения успешно создана
+          schema:
+            $ref: '#/definitions/handlers.CrossSecAreaResponse'
+        "400":
+          description: Некорректный формат данных или отсутствуют обязательные поля
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Вставить новую площадь сечения
+      tags:
+      - welding_info
+  /create_katet:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет в базу данных новый катет(толщину)
+      parameters:
+      - description: Значение катета
+        in: body
+        name: katet_value
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.InsertKatetRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Катет успешно создан
+          schema:
+            $ref: '#/definitions/handlers.SeamTypeResponse'
+        "400":
+          description: Некорректный формат данных или отсутствуют обязательные поля
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Вставить новый катет(толщину)
+      tags:
+      - welding_info
+  /create_seam_type:
+    post:
+      consumes:
+      - application/json
+      description: Создает новый тип шва с указанным именем.
+      parameters:
+      - description: Название типа шва
+        in: body
+        name: seam_type_name
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.InsertSeamTypeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Тип шва успешно создан
+          schema:
+            $ref: '#/definitions/handlers.SeamTypeResponse'
+        "400":
+          description: Некорректный формат данных или отсутствуют обязательные поля
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Вставить новый тип шва
+      tags:
+      - welding_info
   /cross_sec_area:
     get:
       consumes:

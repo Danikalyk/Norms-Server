@@ -3,6 +3,7 @@ package handlers
 import (
 	"NormsServer/database"
 	"NormsServer/models"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -33,4 +34,65 @@ func GetKatet(c *fiber.Ctx) error {
 		return c.Status(500).SendString(err.Error())
 	}
 	return c.JSON(katets)
+}
+
+type InsertKatetRequest struct {
+	KatetValue string `json:"katet_value" validate:"required"`
+}
+
+type KatetErrorResponse struct {
+	Error string `json:"error"`
+}
+
+type KatetResponse struct {
+	KatetValue string `json:"katet_value"`
+}
+
+// @Summary Вставить новый катет(толщину)
+// @Description Добавляет в базу данных новый катет(толщину)
+// @Tags welding_info
+// @Accept  json
+// @Produce  json
+// @Param   katet_value body InsertKatetRequest true "Значение катета"
+// @Success 201 {object} SeamTypeResponse "Катет успешно создан"
+// @Failure 400 {object} ErrorResponse "Некорректный формат данных или отсутствуют обязательные поля"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /create_katet [post]
+func InsertKatet(c *fiber.Ctx) error {
+	type Request struct {
+		KatetValue float64 `json:"katet_value"`
+	}
+
+	var req Request
+
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(KatetErrorResponse{
+			Error: "Неккоректный формат данных",
+		})
+	}
+
+	if req.KatetValue == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(KatetErrorResponse{
+			Error: "Поле katet_value обязательно и должно быть больше нуля",
+		})
+	}
+
+	query := `insert into katets (katet_value) values ($1) returning katet_id`
+
+	var newID int
+
+	err := database.DB.QueryRow(query, req.KatetValue).Scan(&newID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(KatetErrorResponse{
+			Error: "Не удалось вставить данные",
+		})
+	}
+
+	f := fmt.Sprint(req.KatetValue)
+
+	newKatet := models.Katets{
+		KATET_VALUE: f,
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(newKatet)
 }

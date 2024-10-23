@@ -47,12 +47,22 @@ func main() {
 	app.Get("/gases", handlers.GetGases)
 	app.Get("/cutting_info", handlers.GetCuttingInfo)
 	app.Get("/cutting_calculate", calculationshandler.CalculateCuttingTime)
+
 	app.Get("/welding_materials", handlers.GetWeldingMaterials)
+
 	app.Get("/welding_types", handlers.GetWeldingType)
+
 	app.Get("/katets", handlers.GetKatet)
-	app.Get("/seam_type", handlers.GetSeamType)
+	app.Post("/create_katet", handlers.InsertKatet)
+
 	app.Get("/cross_sec_area", handlers.GetCrossSecArea)
+	app.Post("/create_cross_sec_area", handlers.InsertCrossSecArea)
+
+	app.Get("/seam_type", handlers.GetSeamType)
+	app.Post("/create_seam_type", handlers.InsertSeamType)
+
 	app.Get("/wire_diameter", handlers.GetWireDiameter)
+
 	app.Get("/tnsh", handlers.GetTNSH)
 
 	app.Get("/swagger/*", fiberSwagger.WrapHandler)

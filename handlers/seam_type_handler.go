@@ -38,3 +38,58 @@ func GetSeamType(c *fiber.Ctx) error {
 	}
 	return c.JSON(seamTypes)
 }
+
+type InsertSeamTypeRequest struct {
+	SeamTypeName string `json:"seam_type_name" validate:"required"`
+}
+
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+type SeamTypeResponse struct {
+	SeamTypeName string `json:"seam_type_name"`
+}
+
+// @Summary Вставить новый тип шва
+// @Description Создает новый тип шва с указанным именем.
+// @Tags welding_info
+// @Accept  json
+// @Produce  json
+// @Param   seam_type_name body InsertSeamTypeRequest true "Название типа шва"
+// @Success 201 {object} SeamTypeResponse "Тип шва успешно создан"
+// @Failure 400 {object} ErrorResponse "Некорректный формат данных или отсутствуют обязательные поля"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /create_seam_type [post]
+func InsertSeamType(c *fiber.Ctx) error {
+	var req InsertSeamTypeRequest
+
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Некорректный формат данных",
+		})
+	}
+
+	if req.SeamTypeName == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Поле seam_type_name обязательно и должно быть заполнено",
+		})
+	}
+
+	query := `INSERT INTO seam_types (seam_type_name) VALUES ($1) RETURNING seam_type_id`
+
+	var newID int
+
+	err := database.DB.QueryRow(query, req.SeamTypeName).Scan(&newID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error: "Не удалось вставить данные",
+		})
+	}
+
+	newSeamType := SeamTypeResponse{
+		SeamTypeName: req.SeamTypeName,
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(newSeamType)
+}

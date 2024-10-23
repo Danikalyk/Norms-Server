@@ -9,7 +9,6 @@ import (
 
 var DB *sqlx.DB
 
-// инициализация базы данных
 func InitDB(connStr string) {
 	var err error
 	DB, err = sqlx.Connect("postgres", connStr)

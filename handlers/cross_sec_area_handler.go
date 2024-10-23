@@ -3,6 +3,7 @@ package handlers
 import (
 	"NormsServer/database"
 	"NormsServer/models"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -38,4 +39,62 @@ func GetCrossSecArea(c *fiber.Ctx) error {
 		return c.Status(500).SendString(err.Error())
 	}
 	return c.JSON(CrossSecArea)
+}
+
+type InsertCrossSecAreaRequest struct {
+	AreaValue float64 `json:"area_value"`
+}
+
+type CrossSecAreaErrorResponse struct {
+	Error string `json:"error"`
+}
+
+type CrossSecAreaResponse struct {
+	CrossSecArea string `json:"area_value"`
+}
+
+// InsertCrossSecArea Добавление новой площади сечения
+// @Summary Вставить новую площадь сечения
+// @Description Создает новую площадь сечения
+// @Tags welding_info
+// @Accept  json
+// @Produce  json
+// @Param   area_value body InsertCrossSecAreaRequest true "Значение площади сечения"
+// @Success 201 {object} CrossSecAreaResponse "Площадь сечения успешно создана"
+// @Failure 400 {object} ErrorResponse "Некорректный формат данных или отсутствуют обязательные поля"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /create_cross_sec_area [post]
+func InsertCrossSecArea(c *fiber.Ctx) error {
+
+	var req InsertCrossSecAreaRequest
+
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(CrossSecAreaErrorResponse{
+			Error: "Некорректный формат данных",
+		})
+	}
+
+	if req.AreaValue == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(CrossSecAreaErrorResponse{
+			Error: "Поле area_value обязательно и должно быть больше нуля",
+		})
+	}
+
+	query := `INSERT INTO cross_sec_areas (area_value) VALUES ($1) RETURNING area_id`
+
+	var newID int
+
+	err := database.DB.QueryRow(query, req.AreaValue).Scan(&newID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(CrossSecAreaErrorResponse{
+			Error: "Не удалось вставить данные в базу данных",
+		})
+	}
+
+	newArea := CrossSecAreaResponse{
+		CrossSecArea: fmt.Sprint(req.AreaValue),
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(newArea)
+
 }

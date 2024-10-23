@@ -4,6 +4,144 @@
         "contact": {}
     },
     "paths": {
+        "/create_cross_sec_area": {
+            "post": {
+                "description": "Создает новую площадь сечения",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "welding_info"
+                ],
+                "summary": "Вставить новую площадь сечения",
+                "parameters": [
+                    {
+                        "description": "Значение площади сечения",
+                        "name": "area_value",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.InsertCrossSecAreaRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Площадь сечения успешно создана",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CrossSecAreaResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный формат данных или отсутствуют обязательные поля",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/create_katet": {
+            "post": {
+                "description": "Добавляет в базу данных новый катет(толщину)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "welding_info"
+                ],
+                "summary": "Вставить новый катет(толщину)",
+                "parameters": [
+                    {
+                        "description": "Значение катета",
+                        "name": "katet_value",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.InsertKatetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Катет успешно создан",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SeamTypeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный формат данных или отсутствуют обязательные поля",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/create_seam_type": {
+            "post": {
+                "description": "Создает новый тип шва с указанным именем.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "welding_info"
+                ],
+                "summary": "Вставить новый тип шва",
+                "parameters": [
+                    {
+                        "description": "Название типа шва",
+                        "name": "seam_type_name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.InsertSeamTypeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Тип шва успешно создан",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SeamTypeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный формат данных или отсутствуют обязательные поля",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/cross_sec_area": {
             "get": {
                 "description": "Возвращает информацию о площади сечения шва на основе материала, типа сварки, катета(толщины), типа шва",
@@ -641,6 +779,60 @@
         }
     },
     "definitions": {
+        "handlers.CrossSecAreaResponse": {
+            "type": "object",
+            "properties": {
+                "area_value": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.InsertCrossSecAreaRequest": {
+            "type": "object",
+            "properties": {
+                "area_value": {
+                    "type": "number"
+                }
+            }
+        },
+        "handlers.InsertKatetRequest": {
+            "type": "object",
+            "required": [
+                "katet_value"
+            ],
+            "properties": {
+                "katet_value": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.InsertSeamTypeRequest": {
+            "type": "object",
+            "required": [
+                "seam_type_name"
+            ],
+            "properties": {
+                "seam_type_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.SeamTypeResponse": {
+            "type": "object",
+            "properties": {
+                "seam_type_name": {
+                    "type": "string"
+                }
+            }
+        },
         "models.CUTTING_INFO": {
             "type": "object",
             "properties": {
